@@ -130,7 +130,6 @@ public class BankLogic {
           customer.accounts.get(i).toString() + " " + customer.accounts.get(i).calculateInterest());
     }
     customers.remove(index);
-    Collections.sort(customers, comp);
     return customerInfo;
   }
 
@@ -197,7 +196,7 @@ public class BankLogic {
 
   //Skriver över clientlist.dat med nuvarande customerslistan
   public void saveClients() {
-    try(ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("src/krinas6_Files/clientlist.dat")))){
+    try(ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("krinas6_Files/clientlist.dat")))){
       for(Customer customer : customers){
         output.writeObject(customer);
       }
@@ -208,7 +207,12 @@ public class BankLogic {
 
 //Laddar alla objekt från filen clientlist.dat
   public void loadClients() {
-    try(ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream("src/krinas6_Files/clientlist.dat")))){
+
+    File directory = new File("krinas6_Files");
+    if(!directory.exists())
+      directory.mkdir();
+
+    try(ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream("krinas6_Files/clientlist.dat")))){
       boolean eof = false;
       while(!eof){
         try{
@@ -241,7 +245,7 @@ public class BankLogic {
     //namnet på filen blir kundens personnummer + kundöverblick
     String[] customerInfo = customerToSave.get(0).split(" ");
     String fileName = customerInfo[2] + " kundöverblick";
-    try(BufferedWriter writer = new BufferedWriter(new FileWriter("src/krinas6_Files/" + fileName + ".txt"))){
+    try(BufferedWriter writer = new BufferedWriter(new FileWriter("krinas6_Files/" + fileName + ".txt"))){
       writer.write("KUND\n=========================\n");
       writer.write(customerInfo[0] + "\n" + customerInfo[1] + "\n" + customerInfo[2]);
       writer.write("\n\n");

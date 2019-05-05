@@ -125,7 +125,7 @@ class MainGui extends JFrame {
   //Denna metod öppnar upp filväljaren i filmappen och visar bara .txt-filer, när användaren valt en fil så laddas den in
   //i en nytt objekt av klassen TextArea
   private void fileChooser(){
-    JFileChooser chooser = new JFileChooser("src/krinas6_Files");
+    JFileChooser chooser = new JFileChooser("krinas6_Files");
     chooser.setDialogTitle("Välj en kundsammanfattning att ladda");
     FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES","txt");
     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
