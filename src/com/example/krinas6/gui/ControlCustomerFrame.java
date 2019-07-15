@@ -6,7 +6,6 @@ package com.example.krinas6.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 // Klassen ärver JFrame för att underlätta skapandet
 class ControlCustomerFrame extends JFrame {
@@ -76,9 +75,16 @@ class ControlCustomerFrame extends JFrame {
           // med resultatet
           createButton.addActionListener(
               e -> {
+                if(firstNameField.getText().isEmpty() || lastNameField.getText().isEmpty() ||pNoField.getText().isEmpty()){
+                  JOptionPane.showMessageDialog(null, "Ett eller flera fält är tomma");
+                }
+                else{
+
+
                 String fName = firstNameField.getText();
                 String eName = lastNameField.getText();
                 String pNo = pNoField.getText();
+
                 boolean foundCustomer = Main.bank.createCustomer(fName, eName, pNo);
                 if (foundCustomer) {
                   JOptionPane.showMessageDialog(
@@ -89,7 +95,9 @@ class ControlCustomerFrame extends JFrame {
                   JOptionPane.showMessageDialog(null, "Finns redan någon med det personnumret");
                 }
                 this.dispose();
+                }
               });
+
 
           break;
         }
@@ -136,18 +144,24 @@ class ControlCustomerFrame extends JFrame {
           // med resultatet
           changeButton.addActionListener(
               e -> {
-                String fName = firstNameField.getText().strip();
-                String eName = lastNameField.getText().strip();
-                String pNo = pNoField.getText().strip();
-                boolean changed = Main.bank.changeCustomerName(fName, eName, pNo);
-                if (changed) {
-                  JOptionPane.showMessageDialog(null, "Namnet ändrades");
-                  MainGui.table.setModel(MainGui.table.loadAllCustomers());
-                } else {
-                  JOptionPane.showMessageDialog(
-                      null, "Kunde inte hitta kunden, kontrollera personnummer");
+                if(firstNameField.getText().isEmpty() || lastNameField.getText().isEmpty() ||pNoField.getText().isEmpty()){
+                  JOptionPane.showMessageDialog(null, "Ett eller flera fält är tomma");
                 }
-                this.dispose();
+                else {
+
+                  String fName = firstNameField.getText().strip();
+                  String eName = lastNameField.getText().strip();
+                  String pNo = pNoField.getText().strip();
+                  boolean changed = Main.bank.changeCustomerName(fName, eName, pNo);
+                  if (changed) {
+                    JOptionPane.showMessageDialog(null, "Namnet ändrades");
+                    MainGui.table.setModel(MainGui.table.loadAllCustomers());
+                  } else {
+                    JOptionPane.showMessageDialog(
+                            null, "Kunde inte hitta kunden, kontrollera personnummer");
+                  }
+                  this.dispose();
+                }
               });
           break;
         }

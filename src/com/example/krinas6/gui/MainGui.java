@@ -3,7 +3,7 @@
 
 package com.example.krinas6.gui;
 
-import com.example.krinas6.businesslogic.BankLogic;
+import com.example.krinas6.helper.HelperClass;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -103,14 +103,18 @@ class MainGui extends JFrame {
     JMenuItem customerSummary = new JMenuItem("Spara kundöverblick");
     fileMenu.add(customerSummary);
     customerSummary.addActionListener(e -> {
-      String pNo = JOptionPane.showInputDialog(null, "Personnummer på kunden som ska sparas").strip();
-      ArrayList<String> customerToSave = Main.bank.getCustomer(pNo);
-      if(customerToSave == null){
-        JOptionPane.showMessageDialog(null,"Kunde inte hitta kunden, kontrollera personnummer");
+      String pNo = JOptionPane.showInputDialog(null, "Personnummer på kunden som ska sparas");
+      if(pNo != null && pNo.length() > 0){
+        pNo = HelperClass.stringStripper(pNo);
+        ArrayList<String> customerToSave = Main.bank.getCustomer(pNo);
+        if(customerToSave == null){
+          JOptionPane.showMessageDialog(null,"Kunde inte hitta kunden, kontrollera personnummer");
+        }
+        else{
+          Main.bank.clientSummaryToFile(customerToSave);
+        }
       }
-      else{
-        Main.bank.clientSummaryToFile(customerToSave);
-      }
+
 
 
     });

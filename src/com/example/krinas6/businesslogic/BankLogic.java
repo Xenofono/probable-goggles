@@ -7,9 +7,8 @@ import com.example.krinas6.businesslogic.account.Account;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BankLogic {
 
@@ -26,54 +25,44 @@ public class BankLogic {
   // Comparator comp skapas så att Collections vet att den ska sortera efter personnummer, det
   // behövs för att kunna binärsöka
   private ArrayList<Customer> customers = new ArrayList<>();
-  private Comparator<Customer> comp = Comparator.comparing(Customer::getpNo);
 
   // Skapar och returnerar en ArrayList med alla kunder genom att använda kundens egna toString
   public ArrayList<String> getAllCustomers() {
-    ArrayList<String> customerInfo = new ArrayList<>();
-
-    for (Customer customer : customers) {
-      customerInfo.add(customer.toString() + "\n");
-    }
-    return customerInfo;
+    return customers.stream().map(customer -> customer.toString()+"\n").collect(Collectors.toCollection(ArrayList::new));
   }
 
-  // Kollar först så personnumret inte finns redan genom binärsökning, om det inte finns så skapas
-  // kunden och
-  // ArrayList sorteras baserat på Comparatorn comp
+  //If optionalCustomer is empty then there is no such customer
   public boolean createCustomer(String name, String surName, String pNo) {
-    int index = searchIndex(pNo);
 
-    // Om index är 0 eller högre så finns redan det personnumret
-    if (index >= 0) {
-      System.out.println(
-          "Kan inte lägga till " + name + " " + surName + " då " + pNo + " redan finns");
-      return false;
+    Optional<Customer> optionalCustomer = customers.stream().filter(customer -> customer.getpNo().equals(pNo)).findFirst();
+
+    if(optionalCustomer.isEmpty()){
+      customers.add(new Customer(name, surName, pNo));
+      customers.sort(Comparator.comparing(Customer::getpNo));
     }
-    // Kunden skapas i listan och listan sorteras.
-    customers.add(new Customer(name, surName, pNo));
-    Collections.sort(customers, comp);
-    return true;
+    return optionalCustomer.isEmpty();
+
   }
 
   // Försöker hitta pNo genom binärsökning, om index är mindre än 0 så hittades inte kunden.
   // Returnerar en lista med kundens uppgifter och konton
   public ArrayList<String> getCustomer(String pNo) {
-    int index = searchIndex(pNo);
-    if (index < 0) {
+
+    Optional<Customer> optionalCustomer = customers.stream()
+            .filter(customer -> customer.getpNo().equals(pNo))
+            .findFirst();
+
+    if(optionalCustomer.isPresent()){
+      Customer customer = optionalCustomer.get();
+      ArrayList<String> customerInfo = new ArrayList<>();
+      customerInfo.add(customer.toString());
+      customer.accounts.forEach(account -> customerInfo.add(account.toString()));
+      return customerInfo;
+    }
+    else{
       return null;
     }
-    // Tillfällig ArrayList skapas och returneras om binärsökningen returnerade mer än 0.
-    ArrayList<String> customerInfo = new ArrayList<>();
-    Customer customer = customers.get(index);
-    customerInfo.add(customer.toString());
 
-    // Loopar genom kundens alla konton och lägger de i tillfälliga ArrayList customerInfo.
-    for (int i = 0; i < customer.accounts.size(); i++) {
-      customerInfo.add(customer.accounts.get(i).toString());
-    }
-
-    return customerInfo;
   }
 
   // Försöker hitta pNo genom binärsökning.
@@ -191,7 +180,7 @@ public class BankLogic {
   // efter ett Customerobjekt som har samma pNo som metoden anropats med. Använder Comparatorn comp
   // som referens.
   private int searchIndex(String pNo) {
-    return Collections.binarySearch(customers, new Customer(null, null, pNo), comp);
+    return Collections.binarySearch(customers, new Customer(null, null, pNo), Comparator.comparing(Customer::getpNo));
   }
 
   //Skriver över clientlist.dat med nuvarande customerslistan
