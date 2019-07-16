@@ -11,6 +11,7 @@ import com.example.krinas6.businesslogic.account.SavingsAccount;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 class Customer implements Serializable {
 
@@ -19,7 +20,7 @@ class Customer implements Serializable {
   // Lista av abstrakta klassen Account som är gjord så alla anrop här ska funka på alla slags
   // konton.
   private String name, surName, pNo;
-  ArrayList<Account> accounts = new ArrayList<>();
+  private ArrayList<Account> accounts;
 
   //Ser till att objekt vi laddar från fil är av samma version som objektet i koden.
   private static final long serialVersionUID = 1L;
@@ -29,6 +30,7 @@ class Customer implements Serializable {
     this.name = name;
     this.surName = surName;
     this.pNo = pNo;
+    accounts = new ArrayList<>();
   }
 
   // Setters för kundens namn, används av metoden changeCustomerName i klassen BankLogic.
@@ -43,6 +45,10 @@ class Customer implements Serializable {
   // Getter för personnummer
   String getpNo() {
     return pNo;
+  }
+
+  List<Account> getAccounts(){
+    return List.copyOf(accounts);
   }
 
   // Tar ett kontonr och letar igenom kundens konton om kontot finns, returnerar om det finns.
@@ -82,6 +88,7 @@ class Customer implements Serializable {
   // Skapar ett nytt konto som läggs i kundens ArrayList accounts, returnerar kontonumret, annars
   // -1.
   int createAccount() {
+
     if (accounts.add(new SavingsAccount(0, "Sparkonto", 1)))
       return accounts.get(accounts.size() - 1).getAccountId();
     else return -1;
