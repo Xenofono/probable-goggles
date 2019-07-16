@@ -1,5 +1,7 @@
-// BankLogic är ingångspunkten för att skapa kunder, konton och transaktioner, skapas som en singleton
-// @author Kristoffer Näsström, krinas-6
+/**
+ * @author Kristoffer Näsström
+ * Class is entrypoint to all business logic in the program, it's responsible for finding and validating that the customers exist before performing operations
+ */
 
 package com.example.krinas6.businesslogic;
 
@@ -21,66 +23,41 @@ public class BankLogic {
         loadClients();
     }
 
-    // ArrayList customers skapas som håller bankens kunder.
-    // Comparator comp skapas så att Collections vet att den ska sortera efter personnummer, det
-    // behövs för att kunna binärsöka
     private ArrayList<Customer> customers = new ArrayList<>();
 
-    // Skapar och returnerar en ArrayList med alla kunder genom att använda kundens egna toString
     public ArrayList<String> getAllCustomers() {
-        return customers.stream().map(customer -> customer.toString()+"\n").collect(Collectors.toCollection(ArrayList::new));
+        return customers.stream().map(customer -> customer.toString() + "\n").collect(Collectors.toCollection(ArrayList::new));
     }
 
-    //If optionalCustomer is empty then there is no such customer
+    //If optionalCustomer is present then map returns false, otherwise a new customer is created
     public boolean createCustomer(String name, String surName, String pNo) {
-
-        Optional<Customer> optionalCustomer = customers.parallelStream().filter(customer -> customer.getpNo().equals(pNo))
-                .findAny();
-
-        if(optionalCustomer.isPresent()){
-            return false;
-        }
-        customers.add(new Customer(name, surName, pNo));
-        return true;
+        return customers.stream().filter(customer -> customer.getpNo().equals(pNo))
+                .findFirst().map(customer -> false)
+                .orElseGet(() -> customers.add(new Customer(name, surName, pNo)));
     }
 
-    // Försöker hitta pNo genom binärsökning, om index är mindre än 0 så hittades inte kunden.
-    // Returnerar en lista med kundens uppgifter och konton
     public ArrayList<String> getCustomer(String pNo) {
-
-        Optional<Customer> optionalCustomer = customers.stream()
+        return customers.stream()
                 .filter(customer -> customer.getpNo().equals(pNo))
-                .findFirst();
-
-        if(optionalCustomer.isPresent()){
-            Customer customer = optionalCustomer.get();
-            ArrayList<String> customerInfo = new ArrayList<>();
-            customerInfo.add(customer.toString());
-            customer.getAccounts().forEach(account -> customerInfo.add(account.toString()));
-            return customerInfo;
-        }
-        else{
-            return null;
-        }
+                .findFirst()
+                .map((customer) -> {
+                    ArrayList<String> customerInfo = new ArrayList<>();
+                    customerInfo.add(customer.toString());
+                    customer.getAccounts().forEach(account -> customerInfo.add(account.toString()));
+                    return customerInfo;
+                }).orElse(null);
 
     }
 
-    // Försöker hitta pNo genom binärsökning.
-    // Returnerar nya sparkontots kontonr eller -1 om något gick fel.
     public int createSavingsAccount(String pNo) {
         return getOptionalCustomer(pNo).map(Customer::createAccount).orElse(-1);
     }
 
-    // Försöker hitta pNo genom binärsökning.
-    // Returnerar nya kreditkontots kontonr eller -1 om något gick fel.
     public int createCreditAccount(String pNo) {
         return getOptionalCustomer(pNo).map(Customer::createCreditAccount).orElse(-1);
     }
 
-    // Försöker hitta pNo genom binärsökning.
-    // Returnerar true om kundens namn ändrades annars false.
     public boolean changeCustomerName(String name, String surName, String pNo) {
-
         return getOptionalCustomer(pNo).map(customer -> {
             customer.setName(name);
             customer.setSurName(surName);
@@ -89,27 +66,23 @@ public class BankLogic {
 
     }
 
-    // Försöker hitta pNo genom binärsökning.
-    // Om kunden hittas så returneras en kopia på kunden och dennes konton, sedan raderas kunden.
+    /**
+     *
+     * @param pNo
+     * @return ArrayList with the customers closing statement, incl final interests. returns null if no customer is found
+     */
     public ArrayList<String> deleteCustomer(String pNo) {
 
-        Optional<Customer> optionalCustomer = getOptionalCustomer(pNo);
-
-        if(optionalCustomer.isPresent()){
-            List<Account> accountsToBeDeleted = optionalCustomer.get().getAccounts();
-            String customerDetails = optionalCustomer.get().toString();
+        return getOptionalCustomer(pNo).map(customer -> {
             ArrayList<String> customerInfo = new ArrayList<>();
-            customerInfo.add(customerDetails);
-            for (Account account : accountsToBeDeleted) {
+            customerInfo.add(customer.toString());
+            for (Account account : customer.getAccounts()) {
                 customerInfo.add(
                         account.toString() + " " + account.calculateInterest());
             }
-            customers.remove(optionalCustomer.get());
+            customers.remove(customer);
             return customerInfo;
-        }
-        else{
-            return null;
-        }
+        }).orElse(null);
 
     }
 
@@ -148,21 +121,21 @@ public class BankLogic {
     // customers
     // efter ett Customerobjekt som har samma pNo som metoden anropats med. Använder Comparatorn comp
     // som referens.
-    private int searchIndex(String pNo) {
-        return Collections.binarySearch(customers, new Customer(null, null, pNo), Comparator.comparing(Customer::getpNo));
-    }
+//    private int searchIndex(String pNo) {
+//        return Collections.binarySearch(customers, new Customer(null, null, pNo), Comparator.comparing(Customer::getpNo));
+//    }
 
-    private Optional<Customer> getOptionalCustomer(String pNo){
-        return customers.stream().filter(customer -> customer.getpNo().equals(pNo)).findFirst();
+    private Optional<Customer> getOptionalCustomer(String pNo) {
+        return customers.parallelStream().filter(customer -> customer.getpNo().equals(pNo)).findFirst();
     }
 
     //Skriver över clientlist.dat med nuvarande customerslistan
     public void saveClients() {
-        try(ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("krinas6_Files/clientlist.dat")))){
-            for(Customer customer : customers){
+        try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("krinas6_Files/clientlist.dat")))) {
+            for (Customer customer : customers) {
                 output.writeObject(customer);
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -171,13 +144,13 @@ public class BankLogic {
     public void loadClients() {
 
         File directory = new File("krinas6_Files");
-        if(!directory.exists())
+        if (!directory.exists())
             directory.mkdir();
 
-        try(ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream("krinas6_Files/clientlist.dat")))){
+        try (ObjectInputStream input = new ObjectInputStream(new BufferedInputStream(new FileInputStream("krinas6_Files/clientlist.dat")))) {
             boolean eof = false;
-            while(!eof){
-                try{
+            while (!eof) {
+                try {
                     Customer customer = (Customer) input.readObject();
                     customers.add(customer);
 
@@ -190,31 +163,30 @@ public class BankLogic {
                             Account.setCurrentId(currentLoadingCustomersAccount.getAccountId() + 1);
                         }
                     }
-                }  catch(EOFException e){
+                } catch (EOFException e) {
                     eof = true;
                 }
             }
             //Innan användaren har sparat finns ingen fil att ladda in när programmet startar så då visas det här meddelandet.
-        }catch (IOException e){
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Kunde inte ladda kunder, förväntat vid första körning.");
-        }
-        catch(ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     //Sparar all kundens data till en läslig textfil
-    public void clientSummaryToFile(ArrayList<String> customerToSave){
+    public void clientSummaryToFile(ArrayList<String> customerToSave) {
         //namnet på filen blir kundens personnummer + kundöverblick
         String[] customerInfo = customerToSave.get(0).split(" ");
         String fileName = customerInfo[2] + " kundöverblick";
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("krinas6_Files/" + fileName + ".txt"))){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("krinas6_Files/" + fileName + ".txt"))) {
             writer.write("KUND\n=========================\n");
             writer.write(customerInfo[0] + "\n" + customerInfo[1] + "\n" + customerInfo[2]);
             writer.write("\n\n");
 
             //Kundens uppgifter är inskrivna, nu loopas alla konton igenom, inre loopen skriver in transaktionerna
-            for(int i = 1; i < customerToSave.size(); i++){
+            for (int i = 1; i < customerToSave.size(); i++) {
                 String[] account = customerToSave.get(i).split(" ");
                 writer.write("\n\nKONTOINFORMATION");
                 writer.write("\n=========================\n\n");
@@ -234,7 +206,7 @@ public class BankLogic {
                     writer.write("\n\tSaldo: " + transaction[3] + "\n");
                 }
             }
-        } catch(IOException e){
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Något gick fel");
         }
 
