@@ -32,15 +32,12 @@ public class BankLogic {
 
     //If optionalCustomer is present then map returns false, otherwise a new customer is created
     public boolean createCustomer(String name, String surName, String pNo) {
-        return customers.stream().filter(customer -> customer.getpNo().equals(pNo))
-                .findFirst().map(customer -> false)
+        return getOptionalCustomer(pNo).map(customer -> false)
                 .orElseGet(() -> customers.add(new Customer(name, surName, pNo)));
     }
 
     public ArrayList<String> getCustomer(String pNo) {
-        return customers.stream()
-                .filter(customer -> customer.getpNo().equals(pNo))
-                .findFirst()
+        return getOptionalCustomer(pNo)
                 .map((customer) -> {
                     ArrayList<String> customerInfo = new ArrayList<>();
                     customerInfo.add(customer.toString());
@@ -87,44 +84,25 @@ public class BankLogic {
 
     }
 
-    // Om en kund hittas via binärsökning så anropas kundens getAccountmetod som försöker hitta
-    // kontot, annars null.
     public String getAccount(String pNo, int accountNr) {
         return getOptionalCustomer(pNo).map(customer -> customer.getAccount(accountNr)).orElse(null);
     }
 
-    // Om kunden hittas så anropas dennes depositmetod som försöker hitta kontot, om kontot hittas så
-    // läggs pengarna in.
     public boolean deposit(String pNo, int accountId, double amount) {
         return getOptionalCustomer(pNo).map(customer -> customer.deposit(accountId, amount)).orElse(false);
     }
 
-    // Om kunden hittas så anropas dennes withdrawmetod som försöker hitta kontot, om kontot hittas så
-    // returneras kontots withdrawmetod som kontrollerar så saldot räcker för uttag.
     public boolean withdraw(String pNo, int accountId, double amount) {
         return getOptionalCustomer(pNo).map(customer -> customer.withdraw(accountId, amount)).orElse(false);
     }
 
-    // Om kunden hittas så anropas kundens closeAccountmetod som returnerar en kopia på kundens
-    // uppgifter och
-    // de konton som stängdes med räntan beräknad. Annars returneras null.
     public String closeAccount(String pNo, int accountId) {
         return getOptionalCustomer(pNo).map(customer -> customer.closeAccount(accountId)).orElse(null);
     }
 
-    // Binärsöker efter pNo, returnerar null om den inte finns, annars returneras resultatet av
-    // kundens getTransactions()
     public ArrayList<String> getTransactions(String pNo, int accountId) {
         return getOptionalCustomer(pNo).map(customer -> customer.getTransactions(accountId)).orElse(null);
     }
-
-    // Privat metod som bara anropas inom klassen, Collections.binarySearch letar igenom listan
-    // customers
-    // efter ett Customerobjekt som har samma pNo som metoden anropats med. Använder Comparatorn comp
-    // som referens.
-//    private int searchIndex(String pNo) {
-//        return Collections.binarySearch(customers, new Customer(null, null, pNo), Comparator.comparing(Customer::getpNo));
-//    }
 
     private Optional<Customer> getOptionalCustomer(String pNo) {
         return customers.parallelStream().filter(customer -> customer.getpNo().equals(pNo)).findAny();
@@ -189,12 +167,12 @@ public class BankLogic {
             //Kundens uppgifter är inskrivna, nu loopas alla konton igenom, inre loopen skriver in transaktionerna
             for (int i = 1; i < customerToSave.size(); i++) {
                 String[] account = customerToSave.get(i).split(" ");
-                writer.write("\n\nKONTOINFORMATION");
-                writer.write("\n=========================\n\n");
-                writer.write("Kontonummer: " + account[0]);
-                writer.write("\nKontosaldo: " + account[1]);
-                writer.write("\nKontotyp: " + account[2]);
-                writer.write("\nRänta: " + account[3]);
+                writer.write("\n\nKONTOINFORMATION" +
+                        "\n=========================\n\n" +
+                        "Kontonummer: " + account[0] +
+                        "\nKontosaldo: " + account[1] +
+                        "\nKontotyp: " + account[2] +
+                        "\nRänta: " + account[3]);
 
                 //Vi hämtar alla transaktioner från nuvarande kontot och skriver in dem i filen.
                 ArrayList<String> transactionsList = getTransactions(customerInfo[2], Integer.parseInt(account[0]));

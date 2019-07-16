@@ -12,6 +12,7 @@ import com.example.krinas6.businesslogic.account.SavingsAccount;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class Customer implements Serializable {
 
@@ -51,44 +52,28 @@ class Customer implements Serializable {
     return List.copyOf(accounts);
   }
 
-  // Tar ett kontonr och letar igenom kundens konton om kontot finns, returnerar om det finns.
   String getAccount(int accountNr) {
-    for (Account account : accounts) {
-      if (account.getAccountId() == accountNr) {
-        return account.toString();
-      }
-    }
-    return null;
+    return getOptionalAccount(accountNr)
+            .map(Account::toString)
+            .orElse(null);
   }
 
-  // Tar kontonr och summa, om kontot finns hos kunden så läggs summan in på kontot och metoden
-  // returnerar true.
   boolean deposit(int accountNr, double amount) {
-    for (Account account : accounts) {
-      if (account.getAccountId() == accountNr) {
-        account.deposit(amount);
-        return true;
-      }
-    }
-    return false;
+    return getOptionalAccount(accountNr)
+            .map(account -> {
+              account.deposit(amount);
+              return true;
+            }).orElse(false);
   }
 
-  // Tar kontonr och summa, om kontot finns hos kunden så anropas kontots withdrawmetod med summan,
-  // om den lyckas
-  // ta ut pengarna så returnerar den true, finns inte tillräckligt med saldo returnerar den false.
   boolean withdraw(int accountNr, double amount) {
-    for (Account account : accounts) {
-      if (account.getAccountId() == accountNr) {
-        return account.withdraw(amount);
-      }
-    }
-    return false;
+    return getOptionalAccount(accountNr)
+            .map(account -> account.withdraw(amount)).orElse(false);
   }
 
   // Skapar ett nytt konto som läggs i kundens ArrayList accounts, returnerar kontonumret, annars
   // -1.
   int createAccount() {
-
     if (accounts.add(new SavingsAccount(0, "Sparkonto", 1)))
       return accounts.get(accounts.size() - 1).getAccountId();
     else return -1;
@@ -105,32 +90,22 @@ class Customer implements Serializable {
   // Tar ett kontonr och om kontot tillhör kuden så görs en tillfällig kopia av kontot som
   // returneras, sedan raderas kontot.
   String closeAccount(int accountNr) {
-    int index = -1;
-    String temp = "";
 
-    for (int i = 0; i < accounts.size(); i++) {
-      if (accounts.get(i).getAccountId() == accountNr) {
-        temp = accounts.get(i).toString();
-        temp += " " + accounts.get(i).calculateInterest();
-        index = i;
-      }
-    }
-    if (index != -1) {
-      accounts.remove(index);
-      return temp;
-    }
-    return null;
+    return getOptionalAccount(accountNr).map(account -> {
+      String copyOfAccount = account.toString() + " " + account.calculateInterest();
+      accounts.remove(account);
+      return copyOfAccount;
+    }).orElse(null);
+
   }
 
-  // Letar igenom alla konton efter en som stämmer med accountNr, om den finns så anropas kontots
-  // getTransactions().
   ArrayList<String> getTransactions(int accountNr) {
-    for (Account account : accounts) {
-      if (accountNr == account.getAccountId()) {
-        return account.getTransactions();
-      }
-    }
-    return null;
+    return getOptionalAccount(accountNr).map(Account::getTransactions).orElse(null);
+  }
+
+
+  private Optional<Account> getOptionalAccount(int accountNr) {
+    return this.accounts.stream().filter(account -> account.getAccountId() == accountNr).findAny();
   }
 
   // Gör så man lättare kan skriva ut kundens uppgifter.
