@@ -1,7 +1,4 @@
-/**
- * @author Kristoffer Näsström
- * Class is entrypoint to all business logic in the program, it's responsible for finding and validating that the customers exist before performing operations
- */
+
 
 package com.example.krinas6.businesslogic;
 
@@ -12,6 +9,10 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Kristoffer Näsström
+ * Class is entrypoint to all business logic in the program, it's responsible for finding and validating that the customers exist before performing operations
+ */
 public class BankLogic {
 
     // Vi kommer bara ha en av denna klass så vi skapar den som en singleton för att se till att bara
@@ -68,7 +69,7 @@ public class BankLogic {
 
     /**
      *
-     * @param pNo
+     * @param pNo personal identification number
      * @return ArrayList with the customers closing statement, incl final interests. returns null if no customer is found
      */
     public ArrayList<String> deleteCustomer(String pNo) {
@@ -126,7 +127,7 @@ public class BankLogic {
 //    }
 
     private Optional<Customer> getOptionalCustomer(String pNo) {
-        return customers.parallelStream().filter(customer -> customer.getpNo().equals(pNo)).findFirst();
+        return customers.parallelStream().filter(customer -> customer.getpNo().equals(pNo)).findAny();
     }
 
     //Skriver över clientlist.dat med nuvarande customerslistan
