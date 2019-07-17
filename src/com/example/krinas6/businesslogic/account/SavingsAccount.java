@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class SavingsAccount extends Account implements Serializable {
 
   // Enda egna variabeln i denna klass, är true så länge inget uttag har gjorts.
-  private boolean freeWithdrawl = true;
+  private boolean freeWithdrawal = true;
 
   // Constructor för kontot kallar på superklassens constructor.
   public SavingsAccount(double balance, String accountType, double interest) {
@@ -24,7 +24,7 @@ public class SavingsAccount extends Account implements Serializable {
 
   // Ta ut pengarmetod, först anropas setFee för att sätta avgiften och sedan korrigeras amount.
   // Sedan kontrolleras om saldot räcker, om inte så return false, annars korrigera balance,
-  // spara det negativa värdet av amount tillsammans med nuvarande saldot och freeWithdrawl ställs
+  // spara det negativa värdet av amount tillsammans med nuvarande saldot och freeWithdrawal ställs
   // till false.
   public boolean withdraw(double amount) {
     double fee = setFee();
@@ -34,7 +34,7 @@ public class SavingsAccount extends Account implements Serializable {
       this.setBalance(-(amount));
       this.setTransactions(new Transaction(-(amount), this.getBalance()));
 
-      if (freeWithdrawl) freeWithdrawl = false;
+      if (freeWithdrawal) freeWithdrawal = false;
       return true;
     }
     return false;
@@ -44,7 +44,7 @@ public class SavingsAccount extends Account implements Serializable {
   private double setFee() {
     double fee;
 
-    if (freeWithdrawl) fee = 1;
+    if (freeWithdrawal) fee = 1;
     else fee = 1.02;
     return fee;
   }

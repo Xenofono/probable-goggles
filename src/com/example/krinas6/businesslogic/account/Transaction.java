@@ -13,9 +13,9 @@ import java.util.Date;
 class Transaction implements Serializable {
 
   // Bara privata variabler som sätts av constructorn.
-  private double amount;
-  private String date;
-  private double currentBalance;
+  private final double amount;
+  private final String date;
+  private final double currentBalance;
 
   // Constructorn, mest anmärkningsvärt är väl att ett nytt Dateobjekt skapas och sedan formatteras
   // enligt ovan.

@@ -1,10 +1,12 @@
 /*
-Denna klass skapar en frame som är till för att mata in den data som behövs för att anropa metoderna i BankLogic som
+Denna klass skapar en frame som är till för att mata in den data som behövs för att anropa metoderna i BankDaoImpl som
 relaterar till konton.
 @author Kristoffer Näsström, krinas-6
  */
 
 package com.example.krinas6.gui;
+
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,9 +40,9 @@ class ControlAccountFrame extends JFrame {
           JLabel accountId = new JLabel("Kontonummer: ");
           JLabel deposit = new JLabel("Insättning: ");
 
-          JTextField accountIdField = new JTextField(10);
-          JTextField depositField = new JTextField(10);
-          JTextField pNoField = new JTextField(10);
+          CustomTextField accountIdField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
+          CustomTextField depositField = new CustomTextField(10, CustomTextField.PATTERNS.DOUBLES);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton createButton = new JButton("Sätt in pengar");
 
@@ -76,18 +78,18 @@ class ControlAccountFrame extends JFrame {
           // konton, annars felmeddelande.
           createButton.addActionListener(
               e -> {
-                String pNo = pNoField.getText().strip();
+                String pNo = pNoField.getFormatted();
                 // Try/catch för att fånga ifall någon skriver in något annat än nummer i
                 // nummerfälten.
                 try {
-                  int accountIdValue = Integer.parseInt(accountIdField.getText().strip());
-                  double amount = Double.parseDouble(depositField.getText().strip());
-                  boolean foundCustomer = Main.bank.deposit(pNo, accountIdValue, amount);
+                  int accountIdValue = accountIdField.getInt();
+                  double amount = depositField.getDouble();
+                  boolean foundCustomer = MainGui.bankAccessObject.deposit(pNo, accountIdValue, amount);
                   if (foundCustomer) {
                     // Om kunden hittas så hämtar vi en arraylist av kunden och skickar med till
                     // tabellen så
                     // att vi kan skriva alla uppgifter längst upp
-                    ArrayList<String> customer = Main.bank.getCustomer(pNo);
+                    ArrayList<String> customer = MainGui.bankAccessObject.getCustomer(pNo);
                     MainGui.table.setModel(MainGui.table.loadCustomer(customer));
                   } else {
                     JOptionPane.showMessageDialog(null, "Kontonummer eller personnummer felaktigt");
@@ -108,9 +110,9 @@ class ControlAccountFrame extends JFrame {
           JLabel accountId = new JLabel("Kontonummer: ");
           JLabel deposit = new JLabel("Uttag: ");
 
-          JTextField accountIdField = new JTextField(10);
-          JTextField depositField = new JTextField(10);
-          JTextField pNoField = new JTextField(10);
+          CustomTextField accountIdField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
+          CustomTextField depositField = new CustomTextField(10, CustomTextField.PATTERNS.DOUBLES);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton createButton = new JButton("Ta ut pengar");
 
@@ -146,18 +148,18 @@ class ControlAccountFrame extends JFrame {
           // felmeddelande
           createButton.addActionListener(
               e -> {
-                String pNo = pNoField.getText().strip();
+                String pNo = pNoField.getFormatted();
 
                 // Try/catch för att fånga felaktig datatyp
                 try {
-                  int accountIdValue = Integer.parseInt(accountIdField.getText().strip());
-                  double amount = Double.parseDouble(depositField.getText().strip());
-                  boolean foundCustomer = Main.bank.withdraw(pNo, accountIdValue, amount);
+                  int accountIdValue = accountIdField.getInt();
+                  double amount = depositField.getDouble();
+                  boolean foundCustomer = MainGui.bankAccessObject.withdraw(pNo, accountIdValue, amount);
                   if (foundCustomer) {
                     // Om kunden hittas så hämtar vi en arraylist av kunden och skickar med till
                     // tabellen så
                     // att vi kan skriva alla uppgifter längst upp
-                    ArrayList<String> customer = Main.bank.getCustomer(pNo);
+                    ArrayList<String> customer = MainGui.bankAccessObject.getCustomer(pNo);
                     MainGui.table.setModel(MainGui.table.loadCustomer(customer));
                   } else {
                     JOptionPane.showMessageDialog(
@@ -178,8 +180,9 @@ class ControlAccountFrame extends JFrame {
           JLabel pNoLabel = new JLabel("Personnummer: ");
           JLabel accountId = new JLabel("Kontonummer: ");
 
-          JTextField accountIdField = new JTextField(10);
-          JTextField pNoField = new JTextField(10);
+
+          CustomTextField accountIdField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
 
           JButton closeAccount = new JButton("Stäng konto");
 
@@ -212,9 +215,9 @@ class ControlAccountFrame extends JFrame {
               e -> {
                 // Try/catch för att fånga felaktig inmatning
                 try {
-                  String pNo = pNoField.getText().strip();
-                  int accountIdValue = Integer.parseInt(accountIdField.getText().strip());
-                  String foundCustomerAccount = Main.bank.closeAccount(pNo, accountIdValue);
+                  String pNo = pNoField.getFormatted();
+                  int accountIdValue = accountIdField.getInt();
+                  String foundCustomerAccount = MainGui.bankAccessObject.closeAccount(pNo, accountIdValue);
                   if (foundCustomerAccount != null) {
                     // Här plockas kontonumret ut och skickas med till nya tabellen så den kan
                     // skrivas ut högst upp
@@ -247,7 +250,7 @@ class ControlAccountFrame extends JFrame {
           buttonGroup.add(savingsAccount);
           buttonGroup.add(creditAccount);
 
-          JTextField pNoField = new JTextField(10);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton openAccount = new JButton("Öppna konto");
 
@@ -279,14 +282,14 @@ class ControlAccountFrame extends JFrame {
           openAccount.addActionListener(
               e -> {
                 try {
-                  String pNo = pNoField.getText().strip();
+                  String pNo = pNoField.getFormatted();
                   if (savingsAccount.isSelected()) {
-                    int newAccountId = Main.bank.createSavingsAccount(pNo);
+                    int newAccountId = MainGui.bankAccessObject.createSavingsAccount(pNo);
                     if (newAccountId != -1) {
                       // Om kontot skapas så meddelas användaren och skickas till kundöverblicken
                       JOptionPane.showMessageDialog(
                           null, "Sparkonto skapat med id: " + newAccountId);
-                      ArrayList<String> customer = Main.bank.getCustomer(pNo);
+                      ArrayList<String> customer = MainGui.bankAccessObject.getCustomer(pNo);
                       MainGui.table.setModel(MainGui.table.loadCustomer(customer));
                     } else {
                       JOptionPane.showMessageDialog(
@@ -294,12 +297,12 @@ class ControlAccountFrame extends JFrame {
                     }
                   }
                   if (creditAccount.isSelected()) {
-                    int newAccountId = Main.bank.createCreditAccount(pNo);
+                    int newAccountId = MainGui.bankAccessObject.createCreditAccount(pNo);
                     if (newAccountId != -1) {
                       // Om kontot skapas så meddelas användaren och skickas till kundöverblicken
                       JOptionPane.showMessageDialog(
                           null, "Kreditkonto skapat med id: " + newAccountId);
-                      ArrayList<String> customer = Main.bank.getCustomer(pNo);
+                      ArrayList<String> customer = MainGui.bankAccessObject.getCustomer(pNo);
                       MainGui.table.setModel(MainGui.table.loadCustomer(customer));
                     } else {
                       JOptionPane.showMessageDialog(
@@ -321,8 +324,9 @@ class ControlAccountFrame extends JFrame {
           JLabel pNoLabel = new JLabel("Personnummer: ");
           JLabel accountNumber = new JLabel("Kontonummer: ");
 
-          JTextField pNoField = new JTextField(10);
-          JTextField accountNumberField = new JTextField(10);
+
+          CustomTextField accountIdField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton getTransactions = new JButton("Hämta transaktioner");
 
@@ -339,7 +343,7 @@ class ControlAccountFrame extends JFrame {
           gc.gridx = 1;
           add(pNoField, gc);
           gc.gridy = 2;
-          add(accountNumberField, gc);
+          add(accountIdField, gc);
 
           // Knapp
           gc.anchor = GridBagConstraints.PAGE_END;
@@ -348,17 +352,17 @@ class ControlAccountFrame extends JFrame {
           gc.gridy = 4;
           add(getTransactions, gc);
 
-          // Knappen är bunden till den här ActionListenern som anropar Main.bank.getTransactions
+          // Knappen är bunden till den här ActionListenern som anropar MainGui.bankAccessObject.getTransactions
           // och sedan visas ett meddelande
           // med resultatet
           getTransactions.addActionListener(
               e -> {
-                String pNo = pNoField.getText().strip();
-                int accountId = Integer.parseInt(accountNumberField.getText().strip());
-                ArrayList<String> transactions = Main.bank.getTransactions(pNo, accountId);
+                String pNo = pNoField.getFormatted();
+                int accountId = accountIdField.getInt();
+                ArrayList<String> transactions = MainGui.bankAccessObject.getTransactions(pNo, accountId);
                 if (transactions != null) {
                   // Skapar String av kontonumret som skickas med till table.loadTransactions
-                  String account = Main.bank.getAccount(pNo.strip(), accountId).split(" ")[0];
+                  String account = MainGui.bankAccessObject.getAccount(pNo.strip(), accountId).split(" ")[0];
                   MainGui.table.setModel(MainGui.table.loadTransactions(transactions, account));
 
                 } else {

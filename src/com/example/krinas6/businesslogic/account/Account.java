@@ -8,6 +8,7 @@ package com.example.krinas6.businesslogic.account;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 
 abstract public class Account implements Serializable {
@@ -15,9 +16,9 @@ abstract public class Account implements Serializable {
     //currentId tillämpas bara i denna klass via SavingsAccount och CreditAccounts användande av super() så den är private.
     //Alla andra variabler är package-private
     private static int currentId = 1001;
-    private int accountId;
+    private final int accountId;
     private double balance;
-    private String accountType;
+    private final String accountType;
     private double interest;
     private ArrayList<Transaction> transactions;
 
@@ -34,14 +35,9 @@ abstract public class Account implements Serializable {
 
     //Om listan transactions är tom så returneras null, annars skapas en Stringlista som kopierar alla transaktions.
     public ArrayList<String> getTransactions(){
-        if(transactions.size() == 0)
+        if(transactions.isEmpty())
             return null;
-
-        ArrayList<String> transactionList = new ArrayList<>();
-        for(Transaction transaction : transactions){
-            transactionList.add(transaction.toString());
-        }
-        return transactionList;
+        return transactions.stream().map(Transaction::toString).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static int getCurrentId() {

@@ -1,4 +1,4 @@
-// Kundklassen som instansieras inne i klassen BankLogic, den agerar mellanhand mellan BankLogic och
+// Kundklassen som instansieras inne i klassen BankDaoImpl, den agerar mellanhand mellan BankDaoImpl och
 // Accounts
 // @author Kristoffer Näsström, krinas-6
 
@@ -13,6 +13,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 class Customer implements Serializable {
 
@@ -34,7 +37,7 @@ class Customer implements Serializable {
     accounts = new ArrayList<>();
   }
 
-  // Setters för kundens namn, används av metoden changeCustomerName i klassen BankLogic.
+  // Setters för kundens namn, används av metoden changeCustomerName i klassen BankDaoImpl.
   void setName(String name) {
     this.name = name;
   }
@@ -101,6 +104,13 @@ class Customer implements Serializable {
 
   ArrayList<String> getTransactions(int accountNr) {
     return getOptionalAccount(accountNr).map(Account::getTransactions).orElse(null);
+  }
+
+  ArrayList<String> createCustomerDetailsList(){
+    var listToBeReturned = new ArrayList<String>();
+    listToBeReturned.add(this.toString());
+    this.accounts.forEach(account -> listToBeReturned.add(account.toString()));
+    return listToBeReturned;
   }
 
 

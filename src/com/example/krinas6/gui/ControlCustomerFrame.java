@@ -38,9 +38,9 @@ class ControlCustomerFrame extends JFrame {
           JLabel lastNameLabel = new JLabel("Efternamn: ");
           JLabel pNoLabel = new JLabel("Personnummer: ");
 
-          JTextField firstNameField = new JTextField(10);
-          JTextField lastNameField = new JTextField(10);
-          JTextField pNoField = new JTextField(10);
+          CustomTextField firstNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField lastNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton createButton = new JButton("Lägg till ny kund");
 
@@ -70,7 +70,7 @@ class ControlCustomerFrame extends JFrame {
           gc.gridy = 4;
           add(createButton, gc);
 
-          // Knappen är bunden till den här ActionListenern som anropar Main.bank.createCustomer och
+          // Knappen är bunden till den här ActionListenern som anropar MainGui.bankAccessObject.createCustomer och
           // sedan visas ett meddelande
           // med resultatet
           createButton.addActionListener(
@@ -81,11 +81,11 @@ class ControlCustomerFrame extends JFrame {
                 else{
 
 
-                String fName = firstNameField.getText();
-                String eName = lastNameField.getText();
-                String pNo = pNoField.getText();
+                String fName = firstNameField.getFormatted();
+                String eName = lastNameField.getFormatted();
+                String pNo = pNoField.getFormatted();
 
-                boolean foundCustomer = Main.bank.createCustomer(fName, eName, pNo);
+                boolean foundCustomer = MainGui.bankAccessObject.createCustomer(fName, eName, pNo);
                 if (foundCustomer) {
                   JOptionPane.showMessageDialog(
                       null, "Ny kund med personnummer " + pNo + " inlagd");
@@ -107,9 +107,9 @@ class ControlCustomerFrame extends JFrame {
           JLabel lastNameLabel = new JLabel("Efternamn: ");
           JLabel pNoLabel = new JLabel("Personnummer: ");
 
-          JTextField firstNameField = new JTextField(10);
-          JTextField lastNameField = new JTextField(10);
-          JTextField pNoField = new JTextField(10);
+          CustomTextField firstNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField lastNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton changeButton = new JButton("Ändra namn på kund");
 
@@ -139,7 +139,7 @@ class ControlCustomerFrame extends JFrame {
           gc.gridy = 4;
           add(changeButton, gc);
 
-          // Knappen är bunden till den här ActionListenern som anropar Main.bank.changeCustomerName
+          // Knappen är bunden till den här ActionListenern som anropar MainGui.bankAccessObject.changeCustomerName
           // och sedan visas ett meddelande
           // med resultatet
           changeButton.addActionListener(
@@ -149,10 +149,10 @@ class ControlCustomerFrame extends JFrame {
                 }
                 else {
 
-                  String fName = firstNameField.getText().strip();
-                  String eName = lastNameField.getText().strip();
-                  String pNo = pNoField.getText().strip();
-                  boolean changed = Main.bank.changeCustomerName(fName, eName, pNo);
+                  String fName = firstNameField.getFormatted();
+                  String eName = lastNameField.getFormatted();
+                  String pNo = pNoField.getFormatted();
+                  boolean changed = MainGui.bankAccessObject.changeCustomerName(fName, eName, pNo);
                   if (changed) {
                     JOptionPane.showMessageDialog(null, "Namnet ändrades");
                     MainGui.table.setModel(MainGui.table.loadAllCustomers());

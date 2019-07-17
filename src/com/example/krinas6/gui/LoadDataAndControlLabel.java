@@ -31,7 +31,7 @@ class LoadDataAndControlLabel extends JTable {
     this.setModel(tblModel);
 
     // Hämtar lista med alla kunder
-    ArrayList<String> customers = Main.bank.getAllCustomers();
+    ArrayList<String> customers = MainGui.bankAccessObject.getAllCustomers();
 
     // Ändrar text på label, skapar en 2d-array stor nog att hålla alla kunder och skickar allting
     // till generateTableData

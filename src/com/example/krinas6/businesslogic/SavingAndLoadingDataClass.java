@@ -1,115 +1,18 @@
-
-
 package com.example.krinas6.businesslogic;
 
 import com.example.krinas6.businesslogic.account.Account;
 
 import javax.swing.*;
 import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * @author Kristoffer Näsström
- * Class is entrypoint to all business logic in the program, it's responsible for finding and validating that the customers exist before performing operations
- */
-public class BankLogic {
+class SavingAndLoadingDataClass {
 
-    // Vi kommer bara ha en av denna klass så vi skapar den som en singleton för att se till att bara
-    // en skapas
-    private static BankLogic instance = new BankLogic();
 
-    // private constructor gör så att enda sättet att komma åt klassen är via metoden getInstance()
-    private BankLogic() {
-        loadClients();
-    }
-
-    private ArrayList<Customer> customers = new ArrayList<>();
-
-    public ArrayList<String> getAllCustomers() {
-        return customers.stream().map(customer -> customer.toString() + "\n").collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    //If optionalCustomer is present then map returns false, otherwise a new customer is created
-    public boolean createCustomer(String name, String surName, String pNo) {
-        return getOptionalCustomer(pNo).map(customer -> false)
-                .orElseGet(() -> customers.add(new Customer(name, surName, pNo)));
-    }
-
-    public ArrayList<String> getCustomer(String pNo) {
-        return getOptionalCustomer(pNo)
-                .map((customer) -> {
-                    ArrayList<String> customerInfo = new ArrayList<>();
-                    customerInfo.add(customer.toString());
-                    customer.getAccounts().forEach(account -> customerInfo.add(account.toString()));
-                    return customerInfo;
-                }).orElse(null);
-
-    }
-
-    public int createSavingsAccount(String pNo) {
-        return getOptionalCustomer(pNo).map(Customer::createAccount).orElse(-1);
-    }
-
-    public int createCreditAccount(String pNo) {
-        return getOptionalCustomer(pNo).map(Customer::createCreditAccount).orElse(-1);
-    }
-
-    public boolean changeCustomerName(String name, String surName, String pNo) {
-        return getOptionalCustomer(pNo).map(customer -> {
-            customer.setName(name);
-            customer.setSurName(surName);
-            return true;
-        }).orElse(false);
-
-    }
-
-    /**
-     *
-     * @param pNo personal identification number
-     * @return ArrayList with the customers closing statement, incl final interests. returns null if no customer is found
-     */
-    public ArrayList<String> deleteCustomer(String pNo) {
-
-        return getOptionalCustomer(pNo).map(customer -> {
-            ArrayList<String> customerInfo = new ArrayList<>();
-            customerInfo.add(customer.toString());
-            for (Account account : customer.getAccounts()) {
-                customerInfo.add(
-                        account.toString() + " " + account.calculateInterest());
-            }
-            customers.remove(customer);
-            return customerInfo;
-        }).orElse(null);
-
-    }
-
-    public String getAccount(String pNo, int accountNr) {
-        return getOptionalCustomer(pNo).map(customer -> customer.getAccount(accountNr)).orElse(null);
-    }
-
-    public boolean deposit(String pNo, int accountId, double amount) {
-        return getOptionalCustomer(pNo).map(customer -> customer.deposit(accountId, amount)).orElse(false);
-    }
-
-    public boolean withdraw(String pNo, int accountId, double amount) {
-        return getOptionalCustomer(pNo).map(customer -> customer.withdraw(accountId, amount)).orElse(false);
-    }
-
-    public String closeAccount(String pNo, int accountId) {
-        return getOptionalCustomer(pNo).map(customer -> customer.closeAccount(accountId)).orElse(null);
-    }
-
-    public ArrayList<String> getTransactions(String pNo, int accountId) {
-        return getOptionalCustomer(pNo).map(customer -> customer.getTransactions(accountId)).orElse(null);
-    }
-
-    private Optional<Customer> getOptionalCustomer(String pNo) {
-        return customers.parallelStream().filter(customer -> customer.getpNo().equals(pNo)).findAny();
-    }
 
     //Skriver över clientlist.dat med nuvarande customerslistan
-    public void saveClients() {
+    void saveClients(List<Customer> customers) {
         try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("krinas6_Files/clientlist.dat")))) {
             for (Customer customer : customers) {
                 output.writeObject(customer);
@@ -120,7 +23,7 @@ public class BankLogic {
     }
 
     //Laddar alla objekt från filen clientlist.dat
-    public void loadClients() {
+    void loadClients(List<Customer> customers) {
 
         File directory = new File("krinas6_Files");
         if (!directory.exists())
@@ -157,6 +60,7 @@ public class BankLogic {
     //Sparar all kundens data till en läslig textfil
     public void clientSummaryToFile(ArrayList<String> customerToSave) {
         //namnet på filen blir kundens personnummer + kundöverblick
+        BankDao bankAccessObject = BankDaoImpl.getInstance();
         String[] customerInfo = customerToSave.get(0).split(" ");
         String fileName = customerInfo[2] + " kundöverblick";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("krinas6_Files/" + fileName + ".txt"))) {
@@ -175,7 +79,7 @@ public class BankLogic {
                         "\nRänta: " + account[3]);
 
                 //Vi hämtar alla transaktioner från nuvarande kontot och skriver in dem i filen.
-                ArrayList<String> transactionsList = getTransactions(customerInfo[2], Integer.parseInt(account[0]));
+                ArrayList<String> transactionsList = bankAccessObject.getTransactions(customerInfo[2], Integer.parseInt(account[0]));
                 writer.write("\n\nTRANSAKTIONER FÖR KONTO " + account[0] + "\n=========================\n\n");
                 for (String s : transactionsList) {
                     String[] transaction = s.split(" ");
@@ -191,10 +95,5 @@ public class BankLogic {
 
 
         JOptionPane.showMessageDialog(null, "Sparat till 'fil " + fileName + ".txt'");
-    }
-
-    // Getter för vår singletonklass
-    public static BankLogic getInstance() {
-        return instance;
     }
 }
