@@ -38,8 +38,8 @@ class ControlCustomerFrame extends JFrame {
           JLabel lastNameLabel = new JLabel("Efternamn: ");
           JLabel pNoLabel = new JLabel("Personnummer: ");
 
-          CustomTextField firstNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
-          CustomTextField lastNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField firstNameField = new CustomTextField(10, CustomTextField.PATTERNS.NAMES);
+          CustomTextField lastNameField = new CustomTextField(10, CustomTextField.PATTERNS.NAMES);
           CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton createButton = new JButton("Lägg till ny kund");
@@ -107,8 +107,8 @@ class ControlCustomerFrame extends JFrame {
           JLabel lastNameLabel = new JLabel("Efternamn: ");
           JLabel pNoLabel = new JLabel("Personnummer: ");
 
-          CustomTextField firstNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
-          CustomTextField lastNameField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField firstNameField = new CustomTextField(10, CustomTextField.PATTERNS.NAMES);
+          CustomTextField lastNameField = new CustomTextField(10, CustomTextField.PATTERNS.NAMES);
           CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
 
           JButton changeButton = new JButton("Ändra namn på kund");

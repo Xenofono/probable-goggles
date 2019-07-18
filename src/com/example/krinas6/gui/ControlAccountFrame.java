@@ -182,7 +182,7 @@ class ControlAccountFrame extends JFrame {
 
 
           CustomTextField accountIdField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_DIGITS);
-          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.ONLY_LETTERS);
+          CustomTextField pNoField = new CustomTextField(10, CustomTextField.PATTERNS.NAMES);
 
           JButton closeAccount = new JButton("Stäng konto");
 

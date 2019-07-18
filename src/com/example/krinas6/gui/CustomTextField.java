@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 class CustomTextField extends JTextField {
 
     public enum PATTERNS {
-        ONLY_DIGITS, DOUBLES, ONLY_LETTERS;
+        ONLY_DIGITS, DOUBLES, NAMES;
     }
 
 
@@ -60,7 +60,7 @@ class CustomTextField extends JTextField {
                 case DOUBLES:
                     thePattern = Pattern.compile("[0-9]*[.,]?[0-9]{0,2}");
                     break;
-                case ONLY_LETTERS:
+                case NAMES:
                     thePattern = Pattern.compile("[^0-9]");
                     break;
                 default:
