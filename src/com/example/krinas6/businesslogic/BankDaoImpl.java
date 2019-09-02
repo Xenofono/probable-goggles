@@ -13,10 +13,13 @@ import java.util.stream.Collectors;
  */
 public class BankDaoImpl implements BankDao {
 
-    // Vi kommer bara ha en av denna klass så vi skapar den som en singleton för att se till att bara
-    // en skapas
-    private static BankDaoImpl instance = new BankDaoImpl();
-    private SavingAndLoadingDataClass savingAndLoadingDataClass;
+
+    private final SavingAndLoadingDataClass savingAndLoadingDataClass;
+
+    //Bill Pugh singleton design pattern. Only accessible by the getInstance-method
+    private static class CreateBankDaoImplInstance{
+        private final static BankDaoImpl instance = new BankDaoImpl();
+    }
 
     // private constructor gör så att enda sättet att komma åt klassen är via metoden getInstance()
     private BankDaoImpl() {
@@ -122,6 +125,6 @@ public class BankDaoImpl implements BankDao {
 
     // Getter för vår singletonklass
     public static BankDaoImpl getInstance() {
-        return instance;
+        return CreateBankDaoImplInstance.instance;
     }
 }
