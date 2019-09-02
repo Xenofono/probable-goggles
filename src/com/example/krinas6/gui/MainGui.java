@@ -19,6 +19,12 @@ import java.util.ArrayList;
 
 class MainGui extends JFrame {
 
+
+    private static final int DEFAULT_WIDTH = 900;
+    private static final int DEFAULT_HEIGHT = 800;
+
+
+
     // Static table eftersom den används på många ställen så det blev ganska förvirrande att hålla
     // reda på utan static.
     static LoadDataAndControlLabel table;
@@ -27,6 +33,7 @@ class MainGui extends JFrame {
     // Objektet skapas och vi metoden graphicSetup() sköter all setup
     MainGui(String title) {
         super(title);
+        pack();
         bankAccessObject = BankDaoImpl.getInstance();
         graphicSetup();
     }
@@ -219,4 +226,9 @@ class MainGui extends JFrame {
     }
 
 
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
 }

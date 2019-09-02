@@ -15,7 +15,6 @@ public class Main {
         SwingUtilities.invokeLater(
                 () -> {
                     JFrame frame = new MainGui("Kristoffers Banksystem");
-                    frame.setSize(900, 800);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame.setVisible(true);
                 });
