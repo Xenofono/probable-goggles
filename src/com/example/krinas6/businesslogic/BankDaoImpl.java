@@ -13,11 +13,14 @@ import java.util.stream.Collectors;
  */
 public class BankDaoImpl implements BankDao {
 
+    private ArrayList<Customer> customers = new ArrayList<>();
+
 
     private final SavingAndLoadingDataClass savingAndLoadingDataClass;
 
+
     //Bill Pugh singleton design pattern. Only accessible by the getInstance-method
-    private static class CreateBankDaoImplInstance{
+    private static class CreateBankDaoImplInstance {
         private final static BankDaoImpl instance = new BankDaoImpl();
     }
 
@@ -27,7 +30,6 @@ public class BankDaoImpl implements BankDao {
         loadClients();
     }
 
-    private ArrayList<Customer> customers = new ArrayList<>();
 
     public ArrayList<String> getAllCustomers() {
         return customers.stream().map(customer -> customer.toString() + "\n").collect(Collectors.toCollection(ArrayList::new));
@@ -65,7 +67,6 @@ public class BankDaoImpl implements BankDao {
     }
 
     /**
-     *
      * @param pNo personal identification number
      * @return ArrayList with the customers closing statement, incl final interests. returns null if no customer is found
      */

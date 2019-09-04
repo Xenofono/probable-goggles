@@ -10,7 +10,6 @@ import java.util.List;
 class SavingAndLoadingDataClass {
 
 
-
     //Skriver över clientlist.dat med nuvarande customerslistan
     void saveClients(List<Customer> customers) {
         try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("krinas6_Files/clientlist.dat")))) {
@@ -60,7 +59,8 @@ class SavingAndLoadingDataClass {
     //Sparar all kundens data till en läslig textfil
     public void clientSummaryToFile(ArrayList<String> customerToSave) {
         //namnet på filen blir kundens personnummer + kundöverblick
-        BankDao bankAccessObject = BankDaoImpl.getInstance();
+
+
         String[] customerInfo = customerToSave.get(0).split(" ");
         String fileName = customerInfo[2] + " kundöverblick";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("krinas6_Files/" + fileName + ".txt"))) {
@@ -68,32 +68,46 @@ class SavingAndLoadingDataClass {
             writer.write(customerInfo[0] + "\n" + customerInfo[1] + "\n" + customerInfo[2]);
             writer.write("\n\n");
 
-            //Kundens uppgifter är inskrivna, nu loopas alla konton igenom, inre loopen skriver in transaktionerna
-            for (int i = 1; i < customerToSave.size(); i++) {
-                String[] account = customerToSave.get(i).split(" ");
-                writer.write("\n\nKONTOINFORMATION" +
-                        "\n=========================\n\n" +
-                        "Kontonummer: " + account[0] +
-                        "\nKontosaldo: " + account[1] +
-                        "\nKontotyp: " + account[2] +
-                        "\nRänta: " + account[3]);
+            saveAccountToFile(customerInfo[2], customerToSave, writer);
 
-                //Vi hämtar alla transaktioner från nuvarande kontot och skriver in dem i filen.
-                ArrayList<String> transactionsList = bankAccessObject.getTransactions(customerInfo[2], Integer.parseInt(account[0]));
-                writer.write("\n\nTRANSAKTIONER FÖR KONTO " + account[0] + "\n=========================\n\n");
-                for (String s : transactionsList) {
-                    String[] transaction = s.split(" ");
-                    writer.write("\n\tDatum: " + transaction[0]);
-                    writer.write("\n\tTid: " + transaction[1]);
-                    writer.write("\n\tSumma: " + transaction[2]);
-                    writer.write("\n\tSaldo: " + transaction[3] + "\n");
-                }
-            }
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Något gick fel");
         }
 
 
         JOptionPane.showMessageDialog(null, "Sparat till 'fil " + fileName + ".txt'");
+    }
+
+    private void saveAccountToFile(String customerPNO, ArrayList<String> accountsToSave, BufferedWriter writer) throws IOException {
+        for (int i = 1; i < accountsToSave.size(); i++) {
+            String[] account = accountsToSave.get(i).split(" ");
+            writer.write("\n\nKONTOINFORMATION" +
+                    "\n=========================\n\n" +
+                    "Kontonummer: " + account[0] +
+                    "\nKontosaldo: " + account[1] +
+                    "\nKontotyp: " + account[2] +
+                    "\nRänta: " + account[3]);
+
+            ArrayList<String> allTransactions = BankDaoImpl.getInstance().getTransactions(customerPNO, Integer.parseInt(account[0]));
+
+            writer.write("\n\nTRANSAKTIONER FÖR KONTO " + account[0] + "\n=========================\n\n");
+            if (allTransactions == null || allTransactions.size() == 0) {
+                writer.write("\n\tInga transaktioner ännu");
+            } else {
+                for (String transaction : allTransactions) {
+                    saveCustomerTransactionsToFile(transaction, writer);
+                }
+            }
+
+        }
+    }
+
+    private void saveCustomerTransactionsToFile(String transactionPreSplit, BufferedWriter writer) throws IOException {
+        String[] transaction = transactionPreSplit.split(" ");
+
+        writer.write("\n\tDatum: " + transaction[0]);
+        writer.write("\n\tTid: " + transaction[1]);
+        writer.write("\n\tSumma: " + transaction[2]);
+        writer.write("\n\tSaldo: " + transaction[3] + "\n");
     }
 }
